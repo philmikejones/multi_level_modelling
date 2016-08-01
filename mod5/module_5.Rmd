@@ -13,6 +13,7 @@ knitr::opts_knit$set(root.dir = normalizePath("~/gits/multi_level_modelling/"))
 
 ```{r packages}
 library("readr")
+library("lubridate")
 library("lme4")
 ```
 
@@ -23,32 +24,40 @@ Modelling
 
 Load Scottish School Leavers Survey (SSLS) data
 
-```{r read-data}
+```{r read-ssls}
 ssls <- readr::read_csv("inst/extdata/5.1.txt")
+head(ssls)
 ```
 
-mydata <- read.table(file = "5.1.txt", sep = ",", header = TRUE)
+Tidy dataset and configure factors
+```{r tidy-ssls}
+ssls$female   <- factor(ssls$female, levels = 0:1, labels = c("male", "female"))
+ssls$sclass   <- factor(ssls$sclass, levels = 1:4,
+                        labels = c("managerial", "intermediate", "working",
+                                   "unclassified"))
+ssls$schtype  <- factor(ssls$schtype, levels = 0:1,
+                        labels = c("independent", "state"))
+ssls$schurban <- factor(ssls$schurban, levels = 0:1,
+                        labels = c("town_rural", "urban"))
+ssls$schdenom <- factor(ssls$schdenom, levels = 0:1,
+                        labels = c("non-denom", "roman_catholic"))
+```
 
-str(mydata)
+## P5.1.1 A multilevel model of attainment with school effects
 
-
-# P5.1.1 A multilevel model of attainment with school effects
-
-library(lme4)
-
-nullmodel <- lmer(score ~ (1 | schoolid), data = mydata, REML = FALSE)
-
+```{r null-model}
+nullmodel <- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)
 summary(nullmodel)
+```
 
+## P5.1.2 Examining school effects (residuals)
 
-# P5.1.2 Examining school effects (residuals)
-
-fit <- lm(score ~ 1, data = mydata)
-
+```{r school-effects}
+fit <- lm(score ~ 1, data = ssls)
 summary(fit)
+```
 
 logLik(nullmodel)
-
 logLik(fit)
 
 u0 <- ranef(nullmodel, postVar = TRUE)
