@@ -1,10 +1,10 @@
 ---
 title: 'Module 5: Introduction to MLM'
 author: "Phil Mike Jones"
-date: "`r Sys.Date()`"
+date: '`r Sys.Date()`'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -47,6 +47,15 @@ tail(ssls)
 ```
 
 ## P5.1.1 A multi--level model of attainment with school effects
+
+Set up a null model using only school effects. The null model in general is:
+
+$$
+score_{ij} = \beta_{o} + u_{oj} + e_{ij}
+$$
+
+where $score_{ij}$ is the attainment of student $i$ in school $j$, $\beta_{o}$ is the overall mean across schools, $u_{oj}$ is the effect of school $j$ on attainment, and $e_{ij}$ is student $ij$'s error term or residual.
+The null model therefore attempts to explain student ${ij}$'s attainment by taking the mean, adjusting based on the attainment of the school they attend, and including an error term.
 
 ```{r null-model}
 m_null <- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)

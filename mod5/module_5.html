@@ -11,6 +11,7 @@
 
 <meta name="author" content="Phil Mike Jones" />
 
+<meta name="date" content="2016-08-08" />
 
 <title>Module 5: Introduction to MLM</title>
 
@@ -118,7 +119,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Module 5: Introduction to MLM</h1>
 <h4 class="author"><em>Phil Mike Jones</em></h4>
-<h4 class="date"><em>1 August 2016</em></h4>
+<h4 class="date"><em>2016-08-08</em></h4>
 
 </div>
 
@@ -128,25 +129,103 @@ library(&quot;lme4&quot;)</code></pre>
 <pre><code>## Loading required package: Matrix</code></pre>
 <div id="p5.1-comparing-groups-using-multilevel-modelling" class="section level1">
 <h1>P5.1: Comparing Groups using Multilevel Modelling</h1>
-<p>Copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel Modelling</p>
+<p>Course content copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel Modelling</p>
 <p>Load Scottish School Leavers Survey (SSLS) data</p>
-<pre class="r"><code>ssls &lt;- readr::read_csv(&quot;inst/extdata/5.1.txt&quot;)</code></pre>
-<p>mydata &lt;- read.table(file = “5.1.txt”, sep = “,”, header = TRUE)</p>
-<p>str(mydata)</p>
+<pre class="r"><code>ssls &lt;- readr::read_csv(&quot;inst/extdata/5.1.txt&quot;)
+head(ssls)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   caseid schoolid score cohort90 female sclass schtype schurban schdenom
+##    &lt;int&gt;    &lt;int&gt; &lt;int&gt;    &lt;int&gt;  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;    &lt;int&gt;    &lt;int&gt;
+## 1     18        1     0       -6      1      2       0        1        0
+## 2     17        1    10       -6      1      2       0        1        0
+## 3     19        1     0       -6      1      4       0        1        0
+## 4     20        1    40       -6      1      3       0        1        0
+## 5     21        1    42       -6      1      2       0        1        0
+## 6     13        1     4       -6      1      2       0        1        0</code></pre>
+<p>Tidy dataset and configure factors</p>
+<pre class="r"><code>ssls$female &lt;- factor(ssls$female, levels = 0:1, labels = c(&quot;male&quot;, &quot;female&quot;))
+ssls$sclass &lt;- factor(ssls$sclass, levels = 1:4,
+                      labels = c(&quot;managerial&quot;, &quot;intermediate&quot;, &quot;working&quot;,
+                                 &quot;unclassified&quot;))
+ssls$schtype &lt;- factor(ssls$schtype, levels = 0:1,
+                       labels = c(&quot;independent&quot;, &quot;state&quot;))
+ssls$schurban &lt;- factor(ssls$schurban, levels = 0:1,
+                        labels = c(&quot;town_rural&quot;, &quot;urban&quot;))
+ssls$schdenom &lt;- factor(ssls$schdenom, levels = 0:1,
+                        labels = c(&quot;non-denom&quot;, &quot;roman_catholic&quot;))</code></pre>
+<pre class="r"><code>head(ssls)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   caseid schoolid score cohort90 female       sclass     schtype schurban
+##    &lt;int&gt;    &lt;int&gt; &lt;int&gt;    &lt;int&gt; &lt;fctr&gt;       &lt;fctr&gt;      &lt;fctr&gt;   &lt;fctr&gt;
+## 1     18        1     0       -6 female intermediate independent    urban
+## 2     17        1    10       -6 female intermediate independent    urban
+## 3     19        1     0       -6 female unclassified independent    urban
+## 4     20        1    40       -6 female      working independent    urban
+## 5     21        1    42       -6 female intermediate independent    urban
+## 6     13        1     4       -6 female intermediate independent    urban
+## # ... with 1 more variables: schdenom &lt;fctr&gt;</code></pre>
+<pre class="r"><code>tail(ssls)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   caseid schoolid score cohort90 female       sclass     schtype schurban
+##    &lt;int&gt;    &lt;int&gt; &lt;int&gt;    &lt;int&gt; &lt;fctr&gt;       &lt;fctr&gt;      &lt;fctr&gt;   &lt;fctr&gt;
+## 1   6499      511    48       -6   male intermediate independent    urban
+## 2   6492      511    37       -6   male      working independent    urban
+## 3   6493      511    20       -6   male      working independent    urban
+## 4   6496      511    48       -6   male   managerial independent    urban
+## 5   6494      511    10       -6   male unclassified independent    urban
+## 6   6495      511     0       -6   male unclassified independent    urban
+## # ... with 1 more variables: schdenom &lt;fctr&gt;</code></pre>
+<div id="p5.1.1-a-multilevel-model-of-attainment-with-school-effects" class="section level2">
+<h2>P5.1.1 A multi–level model of attainment with school effects</h2>
+<p>Set up a null model using only school effects. The null model in general is:</p>
+<p><span class="math display">\[
+score_{ij} = \beta_{o} + u_{oj} + e_{ij}
+\]</span></p>
+<p>where <span class="math inline">\(score_{ij}\)</span> is the attainment of student <span class="math inline">\(i\)</span> in school <span class="math inline">\(j\)</span>, <span class="math inline">\(\beta_{o}\)</span> is the overall mean across schools, <span class="math inline">\(u_{oj}\)</span> is the effect of school <span class="math inline">\(j\)</span> on attainment, and <span class="math inline">\(e_{ij}\)</span> is student <span class="math inline">\(ij\)</span>’s error term or residual. The null model therefore attempts to explain student <span class="math inline">\({ij}\)</span>’s attainment by taking the mean, adjusting based on the attainment of the school they attend, and including an error term.</p>
+<pre class="r"><code>m_null &lt;- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)
+summary(m_null)</code></pre>
+<pre><code>## Linear mixed model fit by maximum likelihood  ['lmerMod']
+## Formula: score ~ (1 | schoolid)
+##    Data: ssls
+## 
+##       AIC       BIC    logLik  deviance  df.resid 
+##  286545.1  286570.4 -143269.5  286539.1     33985 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.9763 -0.7010  0.1017  0.7391  3.0817 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  schoolid (Intercept)  61.02    7.812  
+##  Residual             258.36   16.073  
+## Number of obs: 33988, groups:  schoolid, 508
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)  30.6006     0.3694   82.83</code></pre>
 </div>
-<div id="p5.1.1-a-multilevel-model-of-attainment-with-school-effects" class="section level1">
-<h1>P5.1.1 A multilevel model of attainment with school effects</h1>
-<p>library(lme4)</p>
-<p>nullmodel &lt;- lmer(score ~ (1 | schoolid), data = mydata, REML = FALSE)</p>
-<p>summary(nullmodel)</p>
-</div>
-<div id="p5.1.2-examining-school-effects-residuals" class="section level1">
-<h1>P5.1.2 Examining school effects (residuals)</h1>
-<p>fit &lt;- lm(score ~ 1, data = mydata)</p>
-<p>summary(fit)</p>
-<p>logLik(nullmodel)</p>
-<p>logLik(fit)</p>
-<p>u0 &lt;- ranef(nullmodel, postVar = TRUE)</p>
+<div id="p5.1.2-examining-school-effects-residuals" class="section level2">
+<h2>P5.1.2 Examining school effects (residuals)</h2>
+<pre class="r"><code>fit &lt;- lm(score ~ 1, data = ssls)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = score ~ 1, data = ssls)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -31.095 -12.095   1.905  13.905  43.905 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 31.09462    0.09392   331.1   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 17.31 on 33987 degrees of freedom</code></pre>
+<p>logLik(m_null) logLik(fit)</p>
+<p>u0 &lt;- ranef(m_null, postVar = TRUE)</p>
 <p>u0se &lt;- sqrt(attr(u0[[1]], “postVar”)[1, , ])</p>
 <p>str(u0[1])</p>
 <p>str(u0[[1]])</p>
@@ -163,6 +242,7 @@ library(&quot;lme4&quot;)</code></pre>
 <p>segments(u0tab<span class="math inline">\(u0rank, u0tab\)</span>u0 - 1.96*u0tab<span class="math inline">\(u0se, u0tab\)</span>u0rank, u0tab<span class="math inline">\(u0 + 1.96*u0tab\)</span>u0se)</p>
 <p>points(u0tab<span class="math inline">\(u0rank, u0tab\)</span>u0, col = “blue”)</p>
 <p>abline(h = 0, col = “red”)</p>
+</div>
 </div>
 
 
