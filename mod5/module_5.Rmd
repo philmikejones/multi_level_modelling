@@ -12,7 +12,7 @@ knitr::opts_knit$set(root.dir = normalizePath("~/gits/multi_level_modelling/"))
 options(scipen = 5, digits = 2)
 ```
 
-```{r packages}
+```{r packages, warning=FALSE, message=FALSE}
 library("readr")
 library("lme4")
 library("broom")
