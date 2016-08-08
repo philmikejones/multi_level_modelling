@@ -1,7 +1,7 @@
 ---
 title: 'Module 5: Introduction to MLM'
 author: "Phil Mike Jones"
-date: "1 August 2016"
+date: "Sys.Date()"
 output:
   pdf_document: default
   html_document: default
@@ -13,41 +13,44 @@ knitr::opts_knit$set(root.dir = normalizePath("~/gits/multi_level_modelling/"))
 
 ```{r packages}
 library("readr")
-library("lubridate")
 library("lme4")
 ```
 
 # P5.1: Comparing Groups using Multilevel Modelling
 
-Copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel
-Modelling
+Course content copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel Modelling
 
 Load Scottish School Leavers Survey (SSLS) data
 
-```{r read-ssls}
+```{r read-ssls, warning=FALSE, cache=TRUE, message=FALSE}
 ssls <- readr::read_csv("inst/extdata/5.1.txt")
 head(ssls)
 ```
 
 Tidy dataset and configure factors
 ```{r tidy-ssls}
-ssls$female   <- factor(ssls$female, levels = 0:1, labels = c("male", "female"))
-ssls$sclass   <- factor(ssls$sclass, levels = 1:4,
-                        labels = c("managerial", "intermediate", "working",
-                                   "unclassified"))
-ssls$schtype  <- factor(ssls$schtype, levels = 0:1,
-                        labels = c("independent", "state"))
+ssls$female <- factor(ssls$female, levels = 0:1, labels = c("male", "female"))
+ssls$sclass <- factor(ssls$sclass, levels = 1:4,
+                      labels = c("managerial", "intermediate", "working",
+                                 "unclassified"))
+ssls$schtype <- factor(ssls$schtype, levels = 0:1,
+                       labels = c("independent", "state"))
 ssls$schurban <- factor(ssls$schurban, levels = 0:1,
                         labels = c("town_rural", "urban"))
 ssls$schdenom <- factor(ssls$schdenom, levels = 0:1,
                         labels = c("non-denom", "roman_catholic"))
 ```
 
-## P5.1.1 A multilevel model of attainment with school effects
+```{r check-ssls}
+head(ssls)
+tail(ssls)
+```
+
+## P5.1.1 A multi--level model of attainment with school effects
 
 ```{r null-model}
-nullmodel <- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)
-summary(nullmodel)
+m_null <- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)
+summary(m_null)
 ```
 
 ## P5.1.2 Examining school effects (residuals)
@@ -57,10 +60,10 @@ fit <- lm(score ~ 1, data = ssls)
 summary(fit)
 ```
 
-logLik(nullmodel)
+logLik(m_null)
 logLik(fit)
 
-u0 <- ranef(nullmodel, postVar = TRUE)
+u0 <- ranef(m_null, postVar = TRUE)
 
 u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ])
 
