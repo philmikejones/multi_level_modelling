@@ -59,6 +59,12 @@ The null model therefore attempts to explain student ${ij}$'s attainment by taki
 
 ```{r null-model}
 m_null <- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)
+```
+
+In setting up the null model no fixed effects are included and the intercept is included by default.
+The `(1 | schoolid)` refers to the constant (`1`) and random level 2 explanatory variables (`schoolid`). The constant is an integer greater than or equal to one, with the greater the value the more accurate the estimation of the log--likelihood at the cost of greater computational time.
+
+```{r null-summary}
 summary(m_null)
 ```
 

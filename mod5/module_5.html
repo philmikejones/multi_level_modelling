@@ -182,8 +182,9 @@ ssls$schdenom &lt;- factor(ssls$schdenom, levels = 0:1,
 score_{ij} = \beta_{o} + u_{oj} + e_{ij}
 \]</span></p>
 <p>where <span class="math inline">\(score_{ij}\)</span> is the attainment of student <span class="math inline">\(i\)</span> in school <span class="math inline">\(j\)</span>, <span class="math inline">\(\beta_{o}\)</span> is the overall mean across schools, <span class="math inline">\(u_{oj}\)</span> is the effect of school <span class="math inline">\(j\)</span> on attainment, and <span class="math inline">\(e_{ij}\)</span> is student <span class="math inline">\(ij\)</span>’s error term or residual. The null model therefore attempts to explain student <span class="math inline">\({ij}\)</span>’s attainment by taking the mean, adjusting based on the attainment of the school they attend, and including an error term.</p>
-<pre class="r"><code>m_null &lt;- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)
-summary(m_null)</code></pre>
+<pre class="r"><code>m_null &lt;- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)</code></pre>
+<p>In setting up the null model no fixed effects are included and the intercept is included by default. The <code>(1 | schoolid)</code> refers to the constant (<code>1</code>) and random level 2 explanatory variables (<code>schoolid</code>). The constant is an integer greater than or equal to one, with the greater the value the more accurate the estimation of the log–likelihood at the cost of greater computational time.</p>
+<pre class="r"><code>summary(m_null)</code></pre>
 <pre><code>## Linear mixed model fit by maximum likelihood  ['lmerMod']
 ## Formula: score ~ (1 | schoolid)
 ##    Data: ssls
