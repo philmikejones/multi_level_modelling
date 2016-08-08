@@ -127,6 +127,7 @@ $(document).ready(function () {
 <pre class="r"><code>library(&quot;readr&quot;)
 library(&quot;lme4&quot;)</code></pre>
 <pre><code>## Loading required package: Matrix</code></pre>
+<pre class="r"><code>library(&quot;broom&quot;)</code></pre>
 <div id="p5.1-comparing-groups-using-multilevel-modelling" class="section level1">
 <h1>P5.1: Comparing Groups using Multilevel Modelling</h1>
 <p>Course content copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel Modelling</p>
@@ -183,66 +184,53 @@ score_{ij} = \beta_{o} + u_{oj} + e_{ij}
 \]</span></p>
 <p>where <span class="math inline">\(score_{ij}\)</span> is the attainment of student <span class="math inline">\(i\)</span> in school <span class="math inline">\(j\)</span>, <span class="math inline">\(\beta_{o}\)</span> is the overall mean across schools, <span class="math inline">\(u_{oj}\)</span> is the effect of school <span class="math inline">\(j\)</span> on attainment, and <span class="math inline">\(e_{ij}\)</span> is student <span class="math inline">\(ij\)</span>’s error term or residual. The null model therefore attempts to explain student <span class="math inline">\({ij}\)</span>’s attainment by taking the mean, adjusting based on the attainment of the school they attend, and including an error term.</p>
 <pre class="r"><code>m_null &lt;- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)</code></pre>
-<p>In setting up the null model no fixed effects are included and the intercept is included by default. The <code>(1 | schoolid)</code> refers to the constant (<code>1</code>) and random level 2 explanatory variables (<code>schoolid</code>). The constant is an integer greater than or equal to one, with the greater the value the more accurate the estimation of the log–likelihood at the cost of greater computational time.</p>
+<p>In setting up the null model no fixed effects are included and the intercept is included by default. The <code>(1 | schoolid)</code> refers to the constant (<code>1</code>) and random level 2 explanatory variables (<code>schoolid</code>). The constant is an integer greater than or equal to one, with the greater the value the more accurate the estimation of the log–likelihood at the cost of greater computational time. <code>REML = FALSE</code> uses a maximum likelihood estimation rather than a restricted maximum likelihood estimation, the default.</p>
 <pre class="r"><code>summary(m_null)</code></pre>
 <pre><code>## Linear mixed model fit by maximum likelihood  ['lmerMod']
 ## Formula: score ~ (1 | schoolid)
 ##    Data: ssls
 ## 
-##       AIC       BIC    logLik  deviance  df.resid 
-##  286545.1  286570.4 -143269.5  286539.1     33985 
+##      AIC      BIC   logLik deviance df.resid 
+##   286545   286570  -143270   286539    33985 
 ## 
 ## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -2.9763 -0.7010  0.1017  0.7391  3.0817 
+##    Min     1Q Median     3Q    Max 
+## -2.976 -0.701  0.102  0.739  3.082 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev.
-##  schoolid (Intercept)  61.02    7.812  
-##  Residual             258.36   16.073  
+##  schoolid (Intercept)  61       7.81   
+##  Residual             258      16.07   
 ## Number of obs: 33988, groups:  schoolid, 508
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error t value
-## (Intercept)  30.6006     0.3694   82.83</code></pre>
-</div>
-<div id="p5.1.2-examining-school-effects-residuals" class="section level2">
-<h2>P5.1.2 Examining school effects (residuals)</h2>
-<pre class="r"><code>fit &lt;- lm(score ~ 1, data = ssls)
-summary(fit)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = score ~ 1, data = ssls)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -31.095 -12.095   1.905  13.905  43.905 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) 31.09462    0.09392   331.1   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 17.31 on 33987 degrees of freedom</code></pre>
-<p>logLik(m_null) logLik(fit)</p>
-<p>u0 &lt;- ranef(m_null, postVar = TRUE)</p>
-<p>u0se &lt;- sqrt(attr(u0[[1]], “postVar”)[1, , ])</p>
-<p>str(u0[1])</p>
-<p>str(u0[[1]])</p>
-<p>head(attr(u0[[1]], “postVar”)[1, , ])</p>
-<p>schoolid &lt;- as.numeric(rownames(u0[[1]]))</p>
-<p>u0tab &lt;- cbind(schoolid, u0[[1]], u0se)</p>
-<p>colnames(u0tab) &lt;- c(“schoolid”,“u0”,“u0se”)</p>
-<p>u0tab &lt;- u0tab[order(u0tab$u0), ]</p>
-<p>u0tab &lt;- cbind(u0tab, c(1:dim(u0tab)[1]))</p>
-<p>colnames(u0tab)[4] &lt;- “u0rank”</p>
-<p>u0tab &lt;- u0tab[order(u0tab$schoolid), ]</p>
-<p>u0tab[1:10, ]</p>
-<p>plot(u0tab<span class="math inline">\(u0rank, u0tab\)</span>u0, type = “n”, xlab = “u_rank”, ylab = “conditional modes of r.e. for school_id:_cons“)</p>
-<p>segments(u0tab<span class="math inline">\(u0rank, u0tab\)</span>u0 - 1.96*u0tab<span class="math inline">\(u0se, u0tab\)</span>u0rank, u0tab<span class="math inline">\(u0 + 1.96*u0tab\)</span>u0se)</p>
-<p>points(u0tab<span class="math inline">\(u0rank, u0tab\)</span>u0, col = “blue”)</p>
-<p>abline(h = 0, col = “red”)</p>
+## (Intercept)   30.601      0.369    82.8</code></pre>
+<p>Formula displays the call used for the model. Data provides summary statistics for the model. Random effects show the effects of random effect variables on the model, in this case only <code>schoolid</code>. Fixed effects shows the effect of fixed effect variables on the model, in this case just an intercept. From the fixed effects the mean attainment value across all schools is estimated as 30.6. The mean for school <span class="math inline">\(j\)</span> is therefore estimated as <span class="math inline">\(30.6 + \hat{u}_{oj}\)</span>, where <span class="math inline">\(+ \hat{u}_{oj}\)</span> is the school residual.</p>
+<!-- ## P5.1.2 Examining school effects (residuals) -->
+<!-- ```{r school-effects} -->
+<!-- fit <- lm(score ~ 1, data = ssls) -->
+<!-- summary(fit) -->
+<!-- ``` -->
+<!-- logLik(m_null) -->
+<!-- logLik(fit) -->
+<!-- u0 <- ranef(m_null, postVar = TRUE) -->
+<!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
+<!-- str(u0[1]) -->
+<!-- str(u0[[1]]) -->
+<!-- head(attr(u0[[1]], "postVar")[1, , ]) -->
+<!-- schoolid <- as.numeric(rownames(u0[[1]])) -->
+<!-- u0tab <- cbind(schoolid, u0[[1]], u0se) -->
+<!-- colnames(u0tab) <- c("schoolid","u0","u0se") -->
+<!-- u0tab <- u0tab[order(u0tab$u0), ] -->
+<!-- u0tab <- cbind(u0tab, c(1:dim(u0tab)[1])) -->
+<!-- colnames(u0tab)[4] <- "u0rank" -->
+<!-- u0tab <- u0tab[order(u0tab$schoolid), ] -->
+<!-- u0tab[1:10, ] -->
+<!-- plot(u0tab$u0rank, u0tab$u0, type = "n", xlab = "u_rank", ylab = "conditional modes of r.e. for school_id:_cons") -->
+<!-- segments(u0tab$u0rank, u0tab$u0 - 1.96*u0tab$u0se, u0tab$u0rank, u0tab$u0 + 1.96*u0tab$u0se) -->
+<!-- points(u0tab$u0rank, u0tab$u0, col = "blue") -->
+<!-- abline(h = 0, col = "red") -->
 </div>
 </div>
 

@@ -9,11 +9,13 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_knit$set(root.dir = normalizePath("~/gits/multi_level_modelling/"))
+options(scipen = 5, digits = 2)
 ```
 
 ```{r packages}
 library("readr")
 library("lme4")
+library("broom")
 ```
 
 # P5.1: Comparing Groups using Multilevel Modelling
@@ -62,52 +64,61 @@ m_null <- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)
 ```
 
 In setting up the null model no fixed effects are included and the intercept is included by default.
-The `(1 | schoolid)` refers to the constant (`1`) and random level 2 explanatory variables (`schoolid`). The constant is an integer greater than or equal to one, with the greater the value the more accurate the estimation of the log--likelihood at the cost of greater computational time.
+The `(1 | schoolid)` refers to the constant (`1`) and random level 2 explanatory variables (`schoolid`).
+The constant is an integer greater than or equal to one, with the greater the value the more accurate the estimation of the log--likelihood at the cost of greater computational time.
+`REML = FALSE` uses a maximum likelihood estimation rather than a restricted maximum likelihood estimation, the default.
 
 ```{r null-summary}
 summary(m_null)
 ```
 
-## P5.1.2 Examining school effects (residuals)
+Formula displays the call used for the model.
+Data provides summary statistics for the model.
+Random effects show the effects of random effect variables on the model, in this case only `schoolid`.
+Fixed effects shows the effect of fixed effect variables on the model, in this case just an intercept.
+From the fixed effects the mean attainment value across all schools is estimated as `r m_null@beta`.
+The mean for school $j$ is therefore estimated as $`r m_null@beta` + \hat{u}_{oj}$, where $+ \hat{u}_{oj}$ is the school residual.
 
-```{r school-effects}
-fit <- lm(score ~ 1, data = ssls)
-summary(fit)
-```
+<!-- ## P5.1.2 Examining school effects (residuals) -->
 
-logLik(m_null)
-logLik(fit)
+<!-- ```{r school-effects} -->
+<!-- fit <- lm(score ~ 1, data = ssls) -->
+<!-- summary(fit) -->
+<!-- ``` -->
 
-u0 <- ranef(m_null, postVar = TRUE)
+<!-- logLik(m_null) -->
+<!-- logLik(fit) -->
 
-u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ])
+<!-- u0 <- ranef(m_null, postVar = TRUE) -->
 
-str(u0[1])
+<!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
 
-str(u0[[1]])
+<!-- str(u0[1]) -->
 
-head(attr(u0[[1]], "postVar")[1, , ])
+<!-- str(u0[[1]]) -->
 
-schoolid <- as.numeric(rownames(u0[[1]]))
+<!-- head(attr(u0[[1]], "postVar")[1, , ]) -->
 
-u0tab <- cbind(schoolid, u0[[1]], u0se)
+<!-- schoolid <- as.numeric(rownames(u0[[1]])) -->
 
-colnames(u0tab) <- c("schoolid","u0","u0se")
+<!-- u0tab <- cbind(schoolid, u0[[1]], u0se) -->
 
-u0tab <- u0tab[order(u0tab$u0), ]
+<!-- colnames(u0tab) <- c("schoolid","u0","u0se") -->
 
-u0tab <- cbind(u0tab, c(1:dim(u0tab)[1]))
+<!-- u0tab <- u0tab[order(u0tab$u0), ] -->
 
-colnames(u0tab)[4] <- "u0rank"
+<!-- u0tab <- cbind(u0tab, c(1:dim(u0tab)[1])) -->
 
-u0tab <- u0tab[order(u0tab$schoolid), ]
+<!-- colnames(u0tab)[4] <- "u0rank" -->
 
-u0tab[1:10, ]
+<!-- u0tab <- u0tab[order(u0tab$schoolid), ] -->
 
-plot(u0tab$u0rank, u0tab$u0, type = "n", xlab = "u_rank", ylab = "conditional modes of r.e. for school_id:_cons")
+<!-- u0tab[1:10, ] -->
 
-segments(u0tab$u0rank, u0tab$u0 - 1.96*u0tab$u0se, u0tab$u0rank, u0tab$u0 + 1.96*u0tab$u0se)
+<!-- plot(u0tab$u0rank, u0tab$u0, type = "n", xlab = "u_rank", ylab = "conditional modes of r.e. for school_id:_cons") -->
 
-points(u0tab$u0rank, u0tab$u0, col = "blue")
+<!-- segments(u0tab$u0rank, u0tab$u0 - 1.96*u0tab$u0se, u0tab$u0rank, u0tab$u0 + 1.96*u0tab$u0se) -->
 
-abline(h = 0, col = "red")
+<!-- points(u0tab$u0rank, u0tab$u0, col = "blue") -->
+
+<!-- abline(h = 0, col = "red") -->
