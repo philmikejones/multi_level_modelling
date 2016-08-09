@@ -249,19 +249,17 @@ summary(m_null_single)</code></pre>
 ## 
 ## Residual standard error: 17 on 33987 degrees of freedom</code></pre>
 <p>The <strong>likelihood ratio test</strong> statistic is two times the difference in the log likelihood values for the two models.</p>
-<pre class="r"><code>anova(m_null, m_null_single)</code></pre>
-<pre><code>## Data: ssls
-## Models:
-## m_null_single: score ~ 1
-## m_null: score ~ (1 | schoolid)
-##               Df    AIC    BIC  logLik deviance Chisq Chi Df Pr(&gt;Chisq)
-## m_null_single  2 290293 290310 -145144   290289                        
-## m_null         3 286545 286570 -143270   286539  3750      1     &lt;2e-16
-##                  
-## m_null_single    
-## m_null        ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<pre class="r"><code>anova(m_null, m_null_single) %&gt;% str()</code></pre>
+<pre><code>## Classes 'anova' and 'data.frame':    2 obs. of  8 variables:
+##  $ Df        : num  2 3
+##  $ AIC       : num  290293 286545
+##  $ BIC       : num  290310 286570
+##  $ logLik    : num  -145144 -143270
+##  $ deviance  : num  290289 286539
+##  $ Chisq     : num  NA 3750
+##  $ Chi Df    : num  NA 1
+##  $ Pr(&gt;Chisq): num  NA 0
+##  - attr(*, &quot;heading&quot;)= chr  &quot;Data: ssls&quot; &quot;Models:&quot; &quot;m_null_single: score ~ 1&quot; &quot;m_null: score ~ (1 | schoolid)&quot;</code></pre>
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
 <!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
 <!-- str(u0[1]) -->

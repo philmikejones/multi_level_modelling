@@ -116,7 +116,7 @@ summary(m_null_single)
 The **likelihood ratio test** statistic is two times the difference in the log likelihood values for the two models.
 
 ```{r}
-anova(m_null, m_null_single)
+anova(m_null, m_null_single) %>% str()
 ```
 
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
