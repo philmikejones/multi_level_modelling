@@ -184,7 +184,7 @@ ssls$schdenom &lt;- factor(ssls$schdenom, levels = 0:1,
 <h2>P5.1.1 A multi–level model of attainment with school effects</h2>
 <p>Set up a null model using only school effects. The null model in general is:</p>
 <p><span class="math display">\[
-score_{ij} = \beta_{o} + u_{oj} + e_{ij}
+score_{ij} = \beta_{0} + u_{oj} + e_{ij}
 \]</span></p>
 <p>where <span class="math inline">\(score_{ij}\)</span> is the attainment of student <span class="math inline">\(i\)</span> in school <span class="math inline">\(j\)</span>, <span class="math inline">\(\beta_{o}\)</span> is the overall mean across schools, <span class="math inline">\(u_{oj}\)</span> is the effect of school <span class="math inline">\(j\)</span> on attainment, and <span class="math inline">\(e_{ij}\)</span> is student <span class="math inline">\(ij\)</span>’s error term or residual. The null model therefore attempts to explain student <span class="math inline">\({ij}\)</span>’s attainment by taking the mean, adjusting based on the attainment of the school they attend, and including an error term.</p>
 <pre class="r"><code>m_null &lt;- lmer(score ~ (1 | schoolid), data = ssls, REML = FALSE)</code></pre>
@@ -210,23 +210,50 @@ score_{ij} = \beta_{o} + u_{oj} + e_{ij}
 ## Fixed effects:
 ##             Estimate Std. Error t value
 ## (Intercept)   30.601      0.369    82.8</code></pre>
-<pre class="r"><code>mean(m_null@beta) %&gt;% print(., digits = 3)</code></pre>
-<pre><code>## [1] 30.6</code></pre>
 <ul>
 <li>Formula displays the call used for the model.</li>
 <li>Data provides summary statistics for the model.</li>
 <li>Random effects show the effects of random effect variables on the model, in this case only <code>schoolid</code>.</li>
 <li>Fixed effects shows the effect of fixed effect variables on the model, in this case just an intercept.</li>
 </ul>
+</div>
+<div id="comparing-across-schools" class="section level2">
+<h2>Comparing across schools</h2>
 <p>From the fixed effects the mean attainment value across all schools is estimated as 30.6. The mean for school <span class="math inline">\(j\)</span> is therefore estimated as <span class="math inline">\(30.6 + \hat{u}_{oj}\)</span>, where <span class="math inline">\(\hat{u}_{oj}\)</span> is the school residual. A <span class="math inline">\(\hat{u}_{oj} &gt; 0\)</span> means the school has a higher attainment than average, although at this point these are only point estimates without confidence intervals so it’s not possible if the differences are ‘real’.</p>
-<p>The between–school variance (level 2) in attainment is estimated as 61.0241265480469 and the within–school between–student (level 1) variance is 0.14.</p>
-<!-- ## P5.1.2 Examining school effects (residuals) -->
-<!-- ```{r school-effects} -->
-<!-- fit <- lm(score ~ 1, data = ssls) -->
-<!-- summary(fit) -->
-<!-- ``` -->
+<ul>
+<li><p>The between–school variance (level 2) in attainment is estimated as 61.02 and is denoted by <span class="math inline">\(\hat{\sigma}^2_{u0}\)</span></p></li>
+<li><p>The within–school between–student (level 1) variance is 258.36 and is denoted by <span class="math inline">\(\hat{\sigma}^2_{e}\)</span></p></li>
+<li><p>The total variance is the sum of these two, i.e. <span class="math inline">\(61.02 + 258.36 = 319.38\)</span>.</p></li>
+<li><p>The variance partition coefficient (VPC) is <span class="math inline">\(\frac{\hat{\sigma}^2_{u0}}{(\hat{\sigma}^2_{u0} + \hat{\sigma}^2_{e})}\)</span> or <span class="math inline">\(\frac{61.02}{319.38}\)</span> = <span class="math inline">\(0.19\)</span>. This indicates that 19.11% of the variance in attainment is attributed to differences between schools.</p></li>
+</ul>
+<p>To test if this figure is statistically significant we carry out a <strong>likelihood ratio test</strong> comparing the null multi–level model (that we have just calculated) with a null single–level model. The null single–level model simply exludes the school (which is a random effect):</p>
+<p><span class="math display">\[
+score_{ij} = \beta_{0} + e_{ij}
+\]</span></p>
+<p>Where <span class="math inline">\(score_{ij}\)</span> is again the attainment score of pupil <span class="math inline">\(i\)</span> in school <span class="math inline">\(j\)</span>, <span class="math inline">\(\beta_{0}\)</span> is the mean attainment score, and <span class="math inline">\(e_{ij}\)</span> is pupil <span class="math inline">\(ij\)</span>’s error term or residual.</p>
+<pre class="r"><code>m_null_single &lt;- lm(score ~ 1, data = ssls)
+summary(m_null_single)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = score ~ 1, data = ssls)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -31.09 -12.09   1.91  13.91  43.91 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  31.0946     0.0939     331   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 17 on 33987 degrees of freedom</code></pre>
+<pre class="r"><code>pryr::object_size(m_null_single)</code></pre>
+<pre><code>## 3.7 MB</code></pre>
+<pre class="r"><code>pryr::object_size(m_null)</code></pre>
+<pre><code>## 7.7 MB</code></pre>
 <!-- logLik(m_null) -->
-<!-- logLik(fit) -->
+<!-- logLik(m_null_single) -->
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
 <!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
 <!-- str(u0[1]) -->
