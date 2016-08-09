@@ -7,11 +7,14 @@ output:
   pdf_document: default
 ---
 
+# Setup
+
 ```{r setup, include=FALSE}
 knitr::opts_knit$set(root.dir = normalizePath("~/gits/multi_level_modelling/"))
 options(scipen = 5, digits = 2)
 ```
 
+Load packages:
 ```{r packages, warning=FALSE, message=FALSE}
 library("magrittr")
 library("readr")
@@ -19,18 +22,13 @@ library("lme4")
 library("broom")
 ```
 
-# P5.1: Comparing Groups using Multilevel Modelling
-
-Course content copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel Modelling
-
-Load Scottish School Leavers Survey (SSLS) data
-
+Load Scottish School Leavers Survey (SSLS) data:
 ```{r read-ssls, warning=FALSE, cache=TRUE, message=FALSE}
 ssls <- readr::read_csv("inst/extdata/5.1.txt")
 head(ssls)
 ```
 
-Tidy dataset and configure factors
+Tidy dataset and configure factors:
 ```{r tidy-ssls}
 ssls$female <- factor(ssls$female, levels = 0:1, labels = c("male", "female"))
 ssls$sclass <- factor(ssls$sclass, levels = 1:4,
@@ -44,11 +42,13 @@ ssls$schdenom <- factor(ssls$schdenom, levels = 0:1,
                         labels = c("non-denom", "roman_catholic"))
 ```
 
+Check head and tail of data frame:
 ```{r check-ssls}
 head(ssls)
 tail(ssls)
 ```
 
+# P5.1: Comparing Groups using Multilevel Modelling
 ## P5.1.1 A multi--level model of attainment with school effects
 
 Set up a null model using only school effects. The null model in general is:
@@ -74,12 +74,16 @@ summary(m_null)
 mean(m_null@beta) %>% print(., digits = 3)
 ```
 
-Formula displays the call used for the model.
-Data provides summary statistics for the model.
-Random effects show the effects of random effect variables on the model, in this case only `schoolid`.
-Fixed effects shows the effect of fixed effect variables on the model, in this case just an intercept.
+* Formula displays the call used for the model.
+* Data provides summary statistics for the model.
+* Random effects show the effects of random effect variables on the model, in this case only `schoolid`.
+* Fixed effects shows the effect of fixed effect variables on the model, in this case just an intercept.
+
 From the fixed effects the mean attainment value across all schools is estimated as `r m_null@beta`.
-The mean for school $j$ is therefore estimated as $`r m_null@beta` + \hat{u}_{oj}$, where $+ \hat{u}_{oj}$ is the school residual.
+The mean for school $j$ is therefore estimated as $`r m_null@beta` + \hat{u}_{oj}$, where $\hat{u}_{oj}$ is the school residual.
+A $\hat{u}_{oj} > 0$ means the school has a higher attainment than average, although at this point these are only point estimates without confidence intervals so it's not possible if the differences are 'real'.
+
+The between--school variance (level 2) in attainment is estimated as `r VarCorr(m_null, comp = "Variance", digits = 3)` and the within--school between--student (level 1) variance is...`r stop()`
 
 <!-- ## P5.1.2 Examining school effects (residuals) -->
 
@@ -124,3 +128,7 @@ The mean for school $j$ is therefore estimated as $`r m_null@beta` + \hat{u}_{oj
 <!-- points(u0tab$u0rank, u0tab$u0, col = "blue") -->
 
 <!-- abline(h = 0, col = "red") -->
+
+# Copyright and acknowledgements
+
+These files are my own notes based on course content copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel Modelling. These notes are not intended in any way to imply this work is my own original work (and in fact in places they copy word--for--word the course content).
