@@ -13,6 +13,7 @@ options(scipen = 5, digits = 2)
 ```
 
 ```{r packages, warning=FALSE, message=FALSE}
+library("magrittr")
 library("readr")
 library("lme4")
 library("broom")
@@ -70,6 +71,7 @@ The constant is an integer greater than or equal to one, with the greater the va
 
 ```{r null-summary}
 summary(m_null)
+mean(m_null@beta) %>% print(., digits = 3)
 ```
 
 Formula displays the call used for the model.

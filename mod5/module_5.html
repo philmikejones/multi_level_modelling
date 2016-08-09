@@ -11,7 +11,7 @@
 
 <meta name="author" content="Phil Mike Jones" />
 
-<meta name="date" content="2016-08-08" />
+<meta name="date" content="2016-08-09" />
 
 <title>Module 5: Introduction to MLM</title>
 
@@ -119,12 +119,13 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Module 5: Introduction to MLM</h1>
 <h4 class="author"><em>Phil Mike Jones</em></h4>
-<h4 class="date"><em>2016-08-08</em></h4>
+<h4 class="date"><em>2016-08-09</em></h4>
 
 </div>
 
 
-<pre class="r"><code>library(&quot;readr&quot;)
+<pre class="r"><code>library(&quot;magrittr&quot;)
+library(&quot;readr&quot;)
 library(&quot;lme4&quot;)
 library(&quot;broom&quot;)</code></pre>
 <div id="p5.1-comparing-groups-using-multilevel-modelling" class="section level1">
@@ -205,6 +206,8 @@ score_{ij} = \beta_{o} + u_{oj} + e_{ij}
 ## Fixed effects:
 ##             Estimate Std. Error t value
 ## (Intercept)   30.601      0.369    82.8</code></pre>
+<pre class="r"><code>mean(m_null@beta) %&gt;% print(., digits = 3)</code></pre>
+<pre><code>## [1] 30.6</code></pre>
 <p>Formula displays the call used for the model. Data provides summary statistics for the model. Random effects show the effects of random effect variables on the model, in this case only <code>schoolid</code>. Fixed effects shows the effect of fixed effect variables on the model, in this case just an intercept. From the fixed effects the mean attainment value across all schools is estimated as 30.6. The mean for school <span class="math inline">\(j\)</span> is therefore estimated as <span class="math inline">\(30.6 + \hat{u}_{oj}\)</span>, where <span class="math inline">\(+ \hat{u}_{oj}\)</span> is the school residual.</p>
 <!-- ## P5.1.2 Examining school effects (residuals) -->
 <!-- ```{r school-effects} -->
