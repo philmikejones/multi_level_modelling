@@ -248,12 +248,11 @@ summary(m_null_single)</code></pre>
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error: 17 on 33987 degrees of freedom</code></pre>
-<pre class="r"><code>pryr::object_size(m_null_single)</code></pre>
-<pre><code>## 3.7 MB</code></pre>
-<pre class="r"><code>pryr::object_size(m_null)</code></pre>
-<pre><code>## 7.7 MB</code></pre>
-<!-- logLik(m_null) -->
-<!-- logLik(m_null_single) -->
+<p>The <strong>likelihood ratio test</strong> statistic is two times the difference in the log likelihood values for the two models.</p>
+<pre class="r"><code>logLik(m_null)</code></pre>
+<pre><code>## 'log Lik.' -143270 (df=3)</code></pre>
+<pre class="r"><code>logLik(m_null_single)</code></pre>
+<pre><code>## 'log Lik.' -145144 (df=2)</code></pre>
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
 <!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
 <!-- str(u0[1]) -->

@@ -111,12 +111,16 @@ Where $score_{ij}$ is again the attainment score of pupil $i$ in school $j$, $\b
 ```{r}
 m_null_single <- lm(score ~ 1, data = ssls)
 summary(m_null_single)
-pryr::object_size(m_null_single)
-pryr::object_size(m_null)
 ```
 
-<!-- logLik(m_null) -->
-<!-- logLik(m_null_single) -->
+The **likelihood ratio test** statistic is two times the difference in the log likelihood values for the two models.
+
+```{r}
+logLik(m_null)
+logLik(m_null_single)
+```
+
+
 
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
 
