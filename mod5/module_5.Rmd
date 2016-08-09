@@ -20,7 +20,6 @@ library("magrittr")
 library("readr")
 library("lme4")
 library("broom")
-library("lmerTest")
 ```
 
 Load Scottish School Leavers Survey (SSLS) data:
@@ -117,7 +116,7 @@ summary(m_null_single)
 The **likelihood ratio test** statistic is two times the difference in the log likelihood values for the two models.
 
 ```{r}
-lmerTest::anova(m_null, m_null_single)
+anova(m_null, m_null_single)
 ```
 
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
