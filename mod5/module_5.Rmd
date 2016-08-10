@@ -19,7 +19,6 @@ Load packages:
 library("magrittr")
 library("readr")
 library("lme4")
-library("broom")
 ```
 
 Load Scottish School Leavers Survey (SSLS) data:
