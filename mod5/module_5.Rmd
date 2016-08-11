@@ -3,8 +3,8 @@ title: 'Module 5: Introduction to MLM'
 author: "Phil Mike Jones"
 date: '`r Sys.Date()`'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 # Setup
@@ -20,6 +20,22 @@ library("magrittr")
 library("readr")
 library("lme4")
 ```
+
+Define functions:
+```{r functions}
+format_p <- function(p) {
+  
+  p <- as.numeric(p)
+  
+  if (all.equal(p, 0)) {
+    p <- "<< 0.01"
+  }
+  
+  p
+
+}
+```
+
 
 Load Scottish School Leavers Survey (SSLS) data:
 ```{r read-ssls, warning=FALSE, cache=TRUE, message=FALSE}
@@ -113,10 +129,19 @@ summary(m_null_single)
 ```
 
 The **likelihood ratio test** statistic is two times the difference in the log likelihood values for the two models.
+The log likelihood value can be obtained from an `anova` object, although I'm not sure if this works for `REML = TRUE` (the default).
+
+The `stats::anova()` function provides log likelihood and degrees of freedom statistics, so we can calculate the likelihood ratio from an `anova` object:
 
 ```{r}
-anova(m_null, m_null_single) %>% str()
+m_anova <- anova(m_null, m_null_single)
+str(m_anova)
 ```
+
+Likelihood ratio $= 2(`r m_anova$logLik[2]` - `r m_anova$logLik[1]`) = `r 2 * (m_anova$logLik[2] - m_anova$logLik[1])`$ on $`r m_anova$Df[2] - m_anova$Df[1]`$ d.f.
+
+The $p$-value of this likelihood ratio is $`r format_p(m_anova[["Pr(>Chisq)"]][2])`.$
+Therefore the multi--level model should be used.
 
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
 

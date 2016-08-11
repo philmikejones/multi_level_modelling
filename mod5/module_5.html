@@ -11,7 +11,7 @@
 
 <meta name="author" content="Phil Mike Jones" />
 
-<meta name="date" content="2016-08-10" />
+<meta name="date" content="2016-08-11" />
 
 <title>Module 5: Introduction to MLM</title>
 
@@ -119,7 +119,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Module 5: Introduction to MLM</h1>
 <h4 class="author"><em>Phil Mike Jones</em></h4>
-<h4 class="date"><em>2016-08-10</em></h4>
+<h4 class="date"><em>2016-08-11</em></h4>
 
 </div>
 
@@ -130,6 +130,18 @@ $(document).ready(function () {
 <pre class="r"><code>library(&quot;magrittr&quot;)
 library(&quot;readr&quot;)
 library(&quot;lme4&quot;)</code></pre>
+<p>Define functions:</p>
+<pre class="r"><code>format_p &lt;- function(p) {
+  
+  p &lt;- as.numeric(p)
+  
+  if (all.equal(p, 0)) {
+    p &lt;- &quot;&lt;&lt; 0.01&quot;
+  }
+  
+  p
+
+}</code></pre>
 <p>Load Scottish School Leavers Survey (SSLS) data:</p>
 <pre class="r"><code>ssls &lt;- readr::read_csv(&quot;inst/extdata/5.1.txt&quot;)
 head(ssls)</code></pre>
@@ -247,8 +259,10 @@ summary(m_null_single)</code></pre>
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error: 17 on 33987 degrees of freedom</code></pre>
-<p>The <strong>likelihood ratio test</strong> statistic is two times the difference in the log likelihood values for the two models.</p>
-<pre class="r"><code>anova(m_null, m_null_single) %&gt;% str()</code></pre>
+<p>The <strong>likelihood ratio test</strong> statistic is two times the difference in the log likelihood values for the two models. The log likelihood value can be obtained from an <code>anova</code> object, although I’m not sure if this works for <code>REML = TRUE</code> (the default).</p>
+<p>The <code>stats::anova()</code> function provides log likelihood and degrees of freedom statistics, so we can calculate the likelihood ratio from an <code>anova</code> object:</p>
+<pre class="r"><code>m_anova &lt;- anova(m_null, m_null_single)
+str(m_anova)</code></pre>
 <pre><code>## Classes 'anova' and 'data.frame':    2 obs. of  8 variables:
 ##  $ Df        : num  2 3
 ##  $ AIC       : num  290293 286545
@@ -259,6 +273,8 @@ summary(m_null_single)</code></pre>
 ##  $ Chi Df    : num  NA 1
 ##  $ Pr(&gt;Chisq): num  NA 0
 ##  - attr(*, &quot;heading&quot;)= chr  &quot;Data: ssls&quot; &quot;Models:&quot; &quot;m_null_single: score ~ 1&quot; &quot;m_null: score ~ (1 | schoolid)&quot;</code></pre>
+<p>Likelihood ratio <span class="math inline">\(= 2(-143269.53 - -145144.42) = 3749.78\)</span> on <span class="math inline">\(1\)</span> d.f.</p>
+<p>The <span class="math inline">\(p\)</span>-value of this likelihood ratio is <span class="math inline">\(&lt;&lt; 0.01.\)</span> Therefore the multi–level model should be used.</p>
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
 <!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
 <!-- str(u0[1]) -->
