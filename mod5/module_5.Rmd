@@ -96,7 +96,7 @@ summary(m_null)
 ## Comparing across schools
 From the fixed effects the mean attainment value across all schools is estimated as `r m_null@beta`.
 The mean for school $j$ is therefore estimated as $`r m_null@beta` + \hat{u}_{oj}$, where $\hat{u}_{oj}$ is the school residual.
-A $\hat{u}_{oj} > 0$ means the school has a higher attainment than average, although at this point these are only point estimates without confidence intervals so it's not possible if the differences are 'real'.
+A $\hat{u}_{oj} > 0$ means the school has a higher attainment than average, although at this point these are only point estimates without confidence intervals so it's not possible to know if the differences are 'real'.
 
 ```{r extract-variances, include=FALSE}
 m_null_var <- VarCorr(m_null) %>% as.data.frame(.)
