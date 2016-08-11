@@ -176,7 +176,3 @@ Therefore the multi--level model should be used.
 <!-- points(u0tab$u0rank, u0tab$u0, col = "blue") -->
 
 <!-- abline(h = 0, col = "red") -->
-
-# Copyright and acknowledgements
-
-These files are my own notes based on course content copyright 2011 Camille Szmaragd and George Leckie, Centre for Multilevel Modelling. These notes are not intended in any way to imply this work is my own original work (and in fact in places they copy word--for--word the course content).
