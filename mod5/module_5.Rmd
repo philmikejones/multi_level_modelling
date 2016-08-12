@@ -182,6 +182,7 @@ The function is returned as a `data.frame` with the posterior variances returned
 ```{r school-residuals}
 u0 <- lme4::ranef(m_null, condVar = TRUE)
 u0 %>% str()
+attr(u0[[1]], which = "postVar") %>% as.numeric()
 ```
 
 
