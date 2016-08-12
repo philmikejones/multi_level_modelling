@@ -3,8 +3,8 @@ title: 'Module 5: Introduction to MLM'
 author: "Phil Mike Jones"
 date: '`r Sys.Date()`'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 # Setup
@@ -134,6 +134,26 @@ The log likelihood value can be obtained from an `anova` object, although I'm no
 The `stats::anova()` function provides log likelihood and degrees of freedom statistics, so we can calculate the likelihood ratio from an `anova` object:
 
 ```{r}
+lik_ratio <- function(multi, single) {
+  
+  stopifnot(
+    class(multi) == "lmerMod",
+    class(single) == "lm" || class(single) == "lmerMod"
+  )
+  
+  a_result <- anova(multi, single)
+  
+  list(
+    lik_ratio = 2 * ((a_result[["logLik"]][2]) - (a_result[["logLik"]][1])),
+    df        = (a_result[["Df"]][2]) - (a_result[["Df"]][1]),
+    p_value   = a_result[["Pr(>Chisq)"]][2]
+  )
+  
+}
+
+x <- lik_ratio(m_null, m_null_single)
+x
+
 m_anova <- anova(m_null, m_null_single)
 str(m_anova)
 ```

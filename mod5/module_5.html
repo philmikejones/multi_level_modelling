@@ -11,7 +11,7 @@
 
 <meta name="author" content="Phil Mike Jones" />
 
-<meta name="date" content="2016-08-11" />
+<meta name="date" content="2016-08-12" />
 
 <title>Module 5: Introduction to MLM</title>
 
@@ -119,7 +119,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Module 5: Introduction to MLM</h1>
 <h4 class="author"><em>Phil Mike Jones</em></h4>
-<h4 class="date"><em>2016-08-11</em></h4>
+<h4 class="date"><em>2016-08-12</em></h4>
 
 </div>
 
@@ -261,6 +261,33 @@ summary(m_null_single)</code></pre>
 ## Residual standard error: 17 on 33987 degrees of freedom</code></pre>
 <p>The <strong>likelihood ratio test</strong> statistic is two times the difference in the log likelihood values for the two models. The log likelihood value can be obtained from an <code>anova</code> object, although I’m not sure if this works for <code>REML = TRUE</code> (the default).</p>
 <p>The <code>stats::anova()</code> function provides log likelihood and degrees of freedom statistics, so we can calculate the likelihood ratio from an <code>anova</code> object:</p>
+<pre class="r"><code>lik_ratio &lt;- function(multi, single) {
+  
+  stopifnot(
+    class(multi) == &quot;lmerMod&quot;,
+    class(single) == &quot;lm&quot; || class(single) == &quot;lmerMod&quot;
+  )
+  
+  a_result &lt;- anova(multi, single)
+  
+  list(
+    lik_ratio = 2 * ((a_result[[&quot;logLik&quot;]][2]) - (a_result[[&quot;logLik&quot;]][1])),
+    df        = (a_result[[&quot;Df&quot;]][2]) - (a_result[[&quot;Df&quot;]][1]),
+    p_value   = a_result[[&quot;Pr(&gt;Chisq)&quot;]][2]
+  )
+  
+}
+
+x &lt;- lik_ratio(m_null, m_null_single)
+x</code></pre>
+<pre><code>## $lik_ratio
+## [1] 3750
+## 
+## $df
+## [1] 1
+## 
+## $p_value
+## [1] 0</code></pre>
 <pre class="r"><code>m_anova &lt;- anova(m_null, m_null_single)
 str(m_anova)</code></pre>
 <pre><code>## Classes 'anova' and 'data.frame':    2 obs. of  8 variables:
