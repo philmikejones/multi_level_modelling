@@ -172,7 +172,18 @@ With these results we can determine the likelihood ratio $= 2(`r m_anova$logLik[
 The $p$-value of this likelihood ratio is $`r format_p(school_effect[["p_value"]])`.$
 Therefore the multi--level model should be used.
 
-<!-- u0 <- ranef(m_null, postVar = TRUE) -->
+
+## School effects residuals
+
+Estimating school--level residuals, $\hat{u}_{0j}$, and standard errors is done with the `ranef()` function with `condVar = TRUE`
+This creates an object with the random effects with the variance--covariance matrix.
+The function is returned as a `data.frame` with the posterior variances returned as an attribute.
+
+```{r school-residuals}
+u0 <- lme4::ranef(m_null, condVar = TRUE)
+u0 %>% str()
+```
+
 
 <!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
 

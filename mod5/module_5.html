@@ -303,7 +303,17 @@ school_effect %&gt;% str()</code></pre>
 ##  $ p_value    : num 0</code></pre>
 <p>With these results we can determine the likelihood ratio <span class="math inline">\(= 2(-143269.53 - -145144.42) = 3749.78\)</span> on <span class="math inline">\(1\)</span> d.f.</p>
 <p>The <span class="math inline">\(p\)</span>-value of this likelihood ratio is <span class="math inline">\(&lt;&lt; 0.01.\)</span> Therefore the multi–level model should be used.</p>
-<!-- u0 <- ranef(m_null, postVar = TRUE) -->
+</div>
+<div id="school-effects-residuals" class="section level2">
+<h2>School effects residuals</h2>
+<p>Estimating school–level residuals, <span class="math inline">\(\hat{u}_{0j}\)</span>, and standard errors is done with the <code>ranef()</code> function with <code>condVar = TRUE</code> This creates an object with the random effects with the variance–covariance matrix. The function is returned as a <code>data.frame</code> with the posterior variances returned as an attribute.</p>
+<pre class="r"><code>u0 &lt;- lme4::ranef(m_null, condVar = TRUE)
+u0 %&gt;% str()</code></pre>
+<pre><code>## List of 1
+##  $ schoolid:'data.frame':    508 obs. of  1 variable:
+##   ..$ (Intercept): num [1:508] -11.84 3.21 3.4 -7.42 3.43 ...
+##   ..- attr(*, &quot;postVar&quot;)= num [1, 1, 1:508] 5.71 1.7 2.24 4.29 2.66 ...
+##  - attr(*, &quot;class&quot;)= chr &quot;ranef.mer&quot;</code></pre>
 <!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
 <!-- str(u0[1]) -->
 <!-- str(u0[[1]]) -->
