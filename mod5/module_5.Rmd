@@ -23,6 +23,23 @@ library("lme4")
 
 Define functions:
 ```{r functions}
+likli_ratio <- function(multi, single) {
+  
+  stopifnot(
+    class(multi) == "lmerMod",
+    class(single) == "lm" || class(single) == "lmerMod"
+  )
+  
+  a_result <- anova(multi, single)
+  
+  list(
+    likli_ratio = 2 * ((a_result[["logLik"]][2]) - (a_result[["logLik"]][1])),
+    df          = (a_result[["Df"]][2]) - (a_result[["Df"]][1]),
+    p_value     = a_result[["Pr(>Chisq)"]][2]
+  )
+  
+}
+
 format_p <- function(p) {
   
   p <- as.numeric(p)
@@ -129,38 +146,30 @@ summary(m_null_single)
 ```
 
 The **likelihood ratio test** statistic is two times the difference in the log likelihood values for the two models.
+
+$$
+LR = 2(null_{multi} - null_{single})
+$$
+
 The log likelihood value can be obtained from an `anova` object, although I'm not sure if this works for `REML = TRUE` (the default).
 
 The `stats::anova()` function provides log likelihood and degrees of freedom statistics, so we can calculate the likelihood ratio from an `anova` object:
 
-```{r}
-lik_ratio <- function(multi, single) {
-  
-  stopifnot(
-    class(multi) == "lmerMod",
-    class(single) == "lm" || class(single) == "lmerMod"
-  )
-  
-  a_result <- anova(multi, single)
-  
-  list(
-    lik_ratio = 2 * ((a_result[["logLik"]][2]) - (a_result[["logLik"]][1])),
-    df        = (a_result[["Df"]][2]) - (a_result[["Df"]][1]),
-    p_value   = a_result[["Pr(>Chisq)"]][2]
-  )
-  
-}
-
-x <- lik_ratio(m_null, m_null_single)
-x
-
+```{r likehood-ratio-calculations}
 m_anova <- anova(m_null, m_null_single)
-str(m_anova)
+m_anova %>% str()
 ```
 
-Likelihood ratio $= 2(`r m_anova$logLik[2]` - `r m_anova$logLik[1]`) = `r 2 * (m_anova$logLik[2] - m_anova$logLik[1])`$ on $`r m_anova$Df[2] - m_anova$Df[1]`$ d.f.
+I have written the `likli_ratio()` function to extract the useful results to assess the model.
 
-The $p$-value of this likelihood ratio is $`r format_p(m_anova[["Pr(>Chisq)"]][2])`.$
+```{r test-school-effect}
+school_effect <- likli_ratio(m_null, m_null_single)
+school_effect %>% str()
+```
+
+With these results we can determine the likelihood ratio $= 2(`r m_anova$logLik[2]` - `r m_anova$logLik[1]`) = `r school_effect$likli_ratio`$ on $`r school_effect$df`$ d.f.
+
+The $p$-value of this likelihood ratio is $`r format_p(school_effect[["p_value"]])`.$
 Therefore the multi--level model should be used.
 
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->

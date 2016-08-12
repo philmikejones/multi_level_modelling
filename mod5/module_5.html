@@ -131,7 +131,24 @@ $(document).ready(function () {
 library(&quot;readr&quot;)
 library(&quot;lme4&quot;)</code></pre>
 <p>Define functions:</p>
-<pre class="r"><code>format_p &lt;- function(p) {
+<pre class="r"><code>likli_ratio &lt;- function(multi, single) {
+  
+  stopifnot(
+    class(multi) == &quot;lmerMod&quot;,
+    class(single) == &quot;lm&quot; || class(single) == &quot;lmerMod&quot;
+  )
+  
+  a_result &lt;- anova(multi, single)
+  
+  list(
+    likli_ratio = 2 * ((a_result[[&quot;logLik&quot;]][2]) - (a_result[[&quot;logLik&quot;]][1])),
+    df          = (a_result[[&quot;Df&quot;]][2]) - (a_result[[&quot;Df&quot;]][1]),
+    p_value     = a_result[[&quot;Pr(&gt;Chisq)&quot;]][2]
+  )
+  
+}
+
+format_p &lt;- function(p) {
   
   p &lt;- as.numeric(p)
   
@@ -259,37 +276,14 @@ summary(m_null_single)</code></pre>
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error: 17 on 33987 degrees of freedom</code></pre>
-<p>The <strong>likelihood ratio test</strong> statistic is two times the difference in the log likelihood values for the two models. The log likelihood value can be obtained from an <code>anova</code> object, although I’m not sure if this works for <code>REML = TRUE</code> (the default).</p>
+<p>The <strong>likelihood ratio test</strong> statistic is two times the difference in the log likelihood values for the two models.</p>
+<p><span class="math display">\[
+LR = 2(null_{multi} - null_{single})
+\]</span></p>
+<p>The log likelihood value can be obtained from an <code>anova</code> object, although I’m not sure if this works for <code>REML = TRUE</code> (the default).</p>
 <p>The <code>stats::anova()</code> function provides log likelihood and degrees of freedom statistics, so we can calculate the likelihood ratio from an <code>anova</code> object:</p>
-<pre class="r"><code>lik_ratio &lt;- function(multi, single) {
-  
-  stopifnot(
-    class(multi) == &quot;lmerMod&quot;,
-    class(single) == &quot;lm&quot; || class(single) == &quot;lmerMod&quot;
-  )
-  
-  a_result &lt;- anova(multi, single)
-  
-  list(
-    lik_ratio = 2 * ((a_result[[&quot;logLik&quot;]][2]) - (a_result[[&quot;logLik&quot;]][1])),
-    df        = (a_result[[&quot;Df&quot;]][2]) - (a_result[[&quot;Df&quot;]][1]),
-    p_value   = a_result[[&quot;Pr(&gt;Chisq)&quot;]][2]
-  )
-  
-}
-
-x &lt;- lik_ratio(m_null, m_null_single)
-x</code></pre>
-<pre><code>## $lik_ratio
-## [1] 3750
-## 
-## $df
-## [1] 1
-## 
-## $p_value
-## [1] 0</code></pre>
 <pre class="r"><code>m_anova &lt;- anova(m_null, m_null_single)
-str(m_anova)</code></pre>
+m_anova %&gt;% str()</code></pre>
 <pre><code>## Classes 'anova' and 'data.frame':    2 obs. of  8 variables:
 ##  $ Df        : num  2 3
 ##  $ AIC       : num  290293 286545
@@ -300,7 +294,14 @@ str(m_anova)</code></pre>
 ##  $ Chi Df    : num  NA 1
 ##  $ Pr(&gt;Chisq): num  NA 0
 ##  - attr(*, &quot;heading&quot;)= chr  &quot;Data: ssls&quot; &quot;Models:&quot; &quot;m_null_single: score ~ 1&quot; &quot;m_null: score ~ (1 | schoolid)&quot;</code></pre>
-<p>Likelihood ratio <span class="math inline">\(= 2(-143269.53 - -145144.42) = 3749.78\)</span> on <span class="math inline">\(1\)</span> d.f.</p>
+<p>I have written the <code>likli_ratio()</code> function to extract the useful results to assess the model.</p>
+<pre class="r"><code>school_effect &lt;- likli_ratio(m_null, m_null_single)
+school_effect %&gt;% str()</code></pre>
+<pre><code>## List of 3
+##  $ likli_ratio: num 3750
+##  $ df         : num 1
+##  $ p_value    : num 0</code></pre>
+<p>With these results we can determine the likelihood ratio <span class="math inline">\(= 2(-143269.53 - -145144.42) = 3749.78\)</span> on <span class="math inline">\(1\)</span> d.f.</p>
 <p>The <span class="math inline">\(p\)</span>-value of this likelihood ratio is <span class="math inline">\(&lt;&lt; 0.01.\)</span> Therefore the multi–level model should be used.</p>
 <!-- u0 <- ranef(m_null, postVar = TRUE) -->
 <!-- u0se <- sqrt(attr(u0[[1]], "postVar")[1, , ]) -->
