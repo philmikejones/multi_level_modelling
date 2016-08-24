@@ -32,3 +32,7 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 .Rproj.user
+
+# PDFs I create
+mod5/module_5.pdf
+
